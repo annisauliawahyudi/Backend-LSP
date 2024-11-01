@@ -39,7 +39,23 @@ exports.getAllKUKs = async (req, res) => {
   }
 };
 
-// Membuat KUK baru
+// Mmengambil kuk berdasarkan id
+exports.getKUKById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const kuks = await KUK.findByPk(id);
+    if (!kuks) {
+      return res.status(404).json({ message: 'kuk not found' });
+    }
+    return res.status(200).json({ message: 'Data Retrieved Successfully', data: kuks });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message || error });
+  }
+};
+
+
 // Membuat KUK baru
 exports.getKuksByElemenId = async (req, res) => {
     try {

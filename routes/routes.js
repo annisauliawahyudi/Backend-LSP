@@ -2,60 +2,24 @@ const express = require("express");
 const router = express.Router();
 const { authMiddleware, restrictTo } = require("../middleware/authMiddleware");
 const { register, login } = require("../controllers/authController");
-const multer = require('multer');
-const path = require('path');
-const {
-  getSkema,
-  getIdSkema,
-  storeSkema,
-  updateSkema,
-  deleteSkema,
-  getJenisSkema,
-  getModeSkema
-} = require("../controllers/skemaController");
-const {
-  getUnits,
-  getUnitById,
-  getUnitBySkemaId,
-  getJudulUnit,
-  storeUnit,
-  updateUnit,
-  deleteUnit,
-} = require("../controllers/unitController");
-const {
-  getAllElemen,
-  getElemenById,
-  getElemenByUnitId,
-  storeElemen,
-  editElemen,
-  deleteElemen,
-} = require("../controllers/elemenController");
-const {
-  getAllKUKs,
-  storeKUK,
-  getKuksByElemenId,
-  createKUK,
-  updateKUK,
-  deleteKUK,
-} = require("../controllers/KUKcontroller");
-const {
-  getAllKP,
-  createKP,
-  getOneKP,
-  updateKP,
-  deleteKP
-
-} = require("../controllers/KelPekerjaanController");
+const multer = require("multer");
+const path = require("path");
+const { getSkema, getIdSkema, storeSkema, updateSkema, deleteSkema, getJenisSkema, getModeSkema } = require("../controllers/skemaController");
+const { getUnits, getUnitById, getUnitBySkemaId, getJudulUnit, storeUnit, updateUnit, deleteUnit } = require("../controllers/unitController");
+const { getAllElemen, getElemenById, getElemenByUnitId, storeElemen, editElemen, deleteElemen } = require("../controllers/elemenController");
+const { getAllKUKs, storeKUK, getKuksByElemenId, getKUKById, createKUK, updateKUK, deleteKUK } = require("../controllers/KUKcontroller");
+const { getAllKP, createKP, getOneKP, updateKP, deleteKP } = require("../controllers/KelPekerjaanController");
+const {getAllPersyaratanAsesi, getPersyaratanAsesiById, storePersyaratanAsesi, updatePersyaratanAsesi, deletePersyaratanAsesi, getPersyaratanAsesiBySkemaId, getJenisPersyaratan } = require("../controllers/persyaratanAsesiController");
 
 // Konfigurasi multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // folder penyimpanan file
+    cb(null, "uploads/"); // folder penyimpanan file
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+  },
 });
 
 const upload = multer({
@@ -69,9 +33,9 @@ const upload = multer({
     if (extname && mimetype) {
       return cb(null, true);
     } else {
-      cb(new Error('Hanya file dokumen yang diizinkan!'));
+      cb(new Error("Hanya file dokumen yang diizinkan!"));
     }
-  }
+  },
 });
 
 // Authentication routes
@@ -102,12 +66,12 @@ router.post(
   authMiddleware,
   restrictTo("admin"),
   upload.fields([
-    { name: 'dokumen_skema', maxCount: 1 },
-    { name: 'dokumen_standar_kompetensi', maxCount: 1 }
+    { name: "dokumen_skema", maxCount: 1 },
+    { name: "dokumen_standar_kompetensi", maxCount: 1 },
   ]),
   storeSkema
 );
- // Menyimpan skema baru
+// Menyimpan skema baru
 router.put("/skema/:id", authMiddleware, restrictTo("admin"), updateSkema); // Memperbarui skema
 router.delete("/skema/:id", authMiddleware, restrictTo("admin"), deleteSkema); // Menghapus skema
 router.get("/jenisSkema", authMiddleware, getJenisSkema);
@@ -128,7 +92,7 @@ router.get("/elemen", authMiddleware, getAllElemen); // Mengambil semua elemen
 router.get("/unit/elemen/:unit_id", authMiddleware, getElemenByUnitId); // mengambil elemen per unit
 router.get("/elemen/:id", authMiddleware, getElemenById); // Mengambil elemen berdasarkan ID
 // router.post("/elemen", authMiddleware, restrictTo("admin"), storeElemen); // Menyimpan elemen baru
-router.post("/elemen/create/:unit_id", authMiddleware, restrictTo("admin"), storeElemen); 
+router.post("/elemen/create/:unit_id", authMiddleware, restrictTo("admin"), storeElemen);
 router.put("/elemen/:id", authMiddleware, restrictTo("admin"), editElemen); // Memperbarui elemen
 router.delete("/elemen/:id", authMiddleware, restrictTo("admin"), deleteElemen); // Menghapus elemen
 
@@ -139,16 +103,28 @@ router.get("/kuks", authMiddleware, getAllKUKs); // Mengambil semua KUK
 router.put("/kuks/:id", authMiddleware, restrictTo("admin"), updateKUK); // Memperbarui KUK
 router.delete("/kuks/:id", authMiddleware, restrictTo("admin"), deleteKUK); // Menghapus KUK
 // route get kuk by elemen id
+router.get("/kuks/:id", authMiddleware, getKUKById);
 router.get("/elemen/kuks/:elemen_id", authMiddleware, getKuksByElemenId);
 // route create kuk by elemen id
 router.post("/kuks/create/:elemen_id", authMiddleware, restrictTo("admin"), createKUK);
-
-
 
 // rute untuk kelpekerjaan
 router.get("/kelompok-pekerjaan", authMiddleware, getAllKP);
 router.post("/kelompok-pekerjaan", authMiddleware, restrictTo("admin"), createKP);
 router.put("/kelompok-pekerjaan/:id", authMiddleware, restrictTo("admin"), updateKP);
 router.delete("/kelompok-pekerjaan/:id", authMiddleware, restrictTo("admin"), deleteKP);
+
+//  route untuk persyaratan asesi
+
+router.get("/persyaratan-asesi", authMiddleware, getAllPersyaratanAsesi);
+router.get("/persyaratan-asesi/:id", authMiddleware, getPersyaratanAsesiById);
+router.get("/skema/persyaratan-asesi/:skema_id", authMiddleware, getPersyaratanAsesiBySkemaId);
+router.post("/persyaratan-asesi/create/:skema_id", authMiddleware, restrictTo("admin"), storePersyaratanAsesi);
+// router.post("/persyaratan-asesi", authMiddleware, restrictTo("admin"), storePersyaratanAsesi);
+router.put("/persyaratan-asesi/:id", authMiddleware, restrictTo("admin"), updatePersyaratanAsesi);
+router.delete("/persyaratan-asesi/:id", authMiddleware, restrictTo("admin"), deletePersyaratanAsesi);
+router.get("/jenisPersyaratan-asesi", authMiddleware, getJenisPersyaratan);
+
+
 
 module.exports = router;
